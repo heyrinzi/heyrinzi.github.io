@@ -15,13 +15,34 @@
   h2 { font-size: 18px; margin: 32px 0 8px; }
   p, li { color: #D8D0C8; }
   .muted { color: #A39A92; font-size: 14px; }
+  .bad { color: #EF7A6A; }
+  button { background: #FF8A4C; color: #0E0C0B; border: 0; border-radius: 999px; padding: 12px 20px; font: 600 16px system-ui, sans-serif; cursor: pointer; }
 </style>
 </head>
 <body>
 <main>
 <h1><span>Kai</span> · back from your bank</h1>
-<p>You can close this page and go back to the Kai app.</p>
-<p class="muted">Puoi chiudere questa pagina e tornare nell'app Kai.</p>
+<p id="msg">You can close this page and go back to the Kai app.</p>
+<p id="copy-wrap" hidden><button id="copy" type="button">Copia indirizzo</button> <span id="copied" class="muted" hidden>Copiato</span></p>
+<p class="muted" id="sub">Puoi chiudere questa pagina e tornare nell'app Kai.</p>
+<script>
+  const q = new URLSearchParams(location.search);
+  const msg = document.getElementById('msg');
+  const sub = document.getElementById('sub');
+  if (q.get('error')) {
+    msg.textContent = 'Autorizzazione non riuscita: ' + q.get('error') + (q.get('error_description') ? ' (' + q.get('error_description') + ')' : '');
+    msg.className = 'bad';
+    sub.textContent = 'Il link era scaduto o già usato: chiedine uno nuovo.';
+  } else if (q.get('code')) {
+    msg.textContent = 'Autorizzazione riuscita.';
+    sub.textContent = "Per il test: copia l'indirizzo di questa pagina e incollalo a Claude.";
+    document.getElementById('copy-wrap').hidden = false;
+    document.getElementById('copy').onclick = async () => {
+      await navigator.clipboard.writeText(location.href);
+      document.getElementById('copied').hidden = false;
+    };
+  }
+</script>
 </main>
 </body>
 </html>
